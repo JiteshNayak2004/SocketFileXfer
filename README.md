@@ -8,4 +8,5 @@ by scanning qr and entering the pairing password
 2. clients can access the files through a directory like structure and can browse the server's 
 directory and download and read the files he or she wants to
 
+3. has support for linux users only
 

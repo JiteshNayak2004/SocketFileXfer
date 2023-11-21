@@ -25,9 +25,18 @@ class PasswordHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
 
-            # Display a form to enter the pairing password
-            self.wfile.write(b'<h1>Enter Pairing Password</h1>')
-            self.wfile.write(b'<form method="POST" action="/"><input type="password" name="pairing-password"><input type="submit" value="Submit"></form>')
+            # Display a stylish password prompt
+            password_prompt = """
+            <div style="text-align: center; margin-top: 100px;">
+                <h1>Enter Pairing Password</h1>
+                <form method="POST" action="/">
+                    <input type="password" name="pairing-password" style="padding: 10px; font-size: 16px;">
+                    <br><br>
+                    <input type="submit" value="Submit" style="padding: 10px; font-size: 16px;">
+                </form>
+            </div>
+            """
+            self.wfile.write(password_prompt.encode('utf-8'))
         else:
             super().do_GET()
 
@@ -61,15 +70,28 @@ class PasswordHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(400, 'Incorrect pairing password')
 
     def serve_directory(self, directory_path):
-        self.wfile.write(b'<h1>Directory Listing</h1>')
-        self.wfile.write(b'<ul>')
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+
+        # Display a stylish directory listing
+        directory_listing = """
+        <div style="text-align: center; margin-top: 50px;">
+            <h1>Directory Listing</h1>
+            <ul style="list-style-type: none; padding: 0;">
+        """
 
         for item in os.listdir(directory_path):
             item_path = os.path.join(directory_path, item)
-            link = f'<a href="{item}">{item}</a>'
-            self.wfile.write(f'<li>{link}</li>'.encode('utf-8'))
+            link = f'<li><a href="{item}">{item}</a></li>'
+            directory_listing += link
 
-        self.wfile.write(b'</ul>')
+        directory_listing += """
+            </ul>
+        </div>
+        """
+
+        self.wfile.write(directory_listing.encode('utf-8'))
 
     def send_file(self, file_path):
         with open(file_path, 'rb') as f:
@@ -92,12 +114,25 @@ link = IP
 
 # Generate the QR code
 url = pyqrcode.create(link)
-url.svg("myqr.svg", scale=8)
-webbrowser.open('myqr.svg')
+url.png("myqr.png", scale=8)
+
+# HTML content for displaying QR code
+qr_code_html = f"""
+<div style="text-align: center; margin-top: 50px;">
+    <h1>Scan to Access and Browse Files</h1>
+    <img src="myqr.png" alt="QR Code">
+</div>
+"""
+
+# Save the QR code HTML to a file
+with open("qr_code_page.html", "w") as qr_code_page:
+    qr_code_page.write(qr_code_html)
+
+# Open the default web browser with the QR code HTML page
+webbrowser.open("qr_code_page.html")
 
 # Create and start the HTTP server
 with socketserver.TCPServer(("", PORT), PasswordHandler) as httpd:
     print("Serving at port", PORT)
     print("Type this in your browser:", IP)
-    print("or use the QR code")
     httpd.serve_forever()
