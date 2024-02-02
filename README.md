@@ -10,3 +10,9 @@ directory and download and read the files he or she wants to
 
 3. has support for linux users only
 
+This project is team homelander's submission for the computer networks course at uni
+Team members
+1. Jitesh Nayak
+2. Akash kowshik
+3. Akshay ramkumar
+4. Aneesh rao
